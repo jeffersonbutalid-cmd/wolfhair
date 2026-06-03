@@ -101,13 +101,14 @@
         return;
       }
       if (btn) { btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = "Sending..."; }
-      // text/plain + no-cors keeps this a "simple" cross-origin request so the
-      // GHL inbound webhook receives it without a blocked CORS preflight.
+      // Send as a standard form post: URLSearchParams makes this a CORS-safe
+      // "simple" request (no preflight), and GHL parses the flat fields cleanly.
+      var payload = new URLSearchParams();
+      Object.keys(data).forEach(function (k) { payload.append(k, data[k] == null ? "" : String(data[k])); });
       fetch(endpoint, {
         method: "POST",
         mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=UTF-8" },
-        body: JSON.stringify(data)
+        body: payload
       }).then(function () { finish(); })
         .catch(function () {
           if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label || "Request my consultation"; }
