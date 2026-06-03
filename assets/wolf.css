@@ -569,3 +569,8 @@ html.reveal-show .reveal { opacity: 1 !important; transform: none !important; tr
 .wchat__send:hover { background: var(--accent-deep); }
 .wchat__send:disabled { opacity: .5; cursor: default; }
 .wchat__note { margin: .55em 2px 0; font-size: .68rem; color: var(--slate); text-align: center; }
+
+/* ---------- click-to-directions address link ---------- */
+.dir-link { color: inherit; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; text-decoration-thickness: 1px; transition: text-decoration-color .18s ease, color .18s ease; cursor: pointer; }
+.dir-link:hover { text-decoration-style: solid; }
+.site-footer .dir-link:hover { color: var(--bone); }

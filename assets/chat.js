@@ -10,7 +10,7 @@
 
   var ENDPOINT = window.WOLF_CHAT_ENDPOINT || "/api/chat";
   var GREETING =
-    "Hi! I'm the Wolf Hair Restoration assistant. Ask me about our doctors, procedures, pricing, or booking a free consultation.";
+    "Hi there, I'm Clara, your friendly assistant here at Wolf Hair Restoration. So glad you stopped by! Whether you're curious about our doctors, the different procedures, pricing, or booking a free consultation, I'm here to help. What can I do for you today?";
 
   var doc = document;
   var history = []; // {role, content} for the API
@@ -37,9 +37,9 @@
   var launch = el(
     "button",
     "wchat-launch",
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.9-.9L3 20l1-4.1A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Chat with us</span>'
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.9-.9L3 20l1-4.1A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Chat with Clara</span>'
   );
-  launch.setAttribute("aria-label", "Open chat assistant");
+  launch.setAttribute("aria-label", "Open chat with Clara, the Wolf Hair Restoration assistant");
 
   var panel = el("section", "wchat");
   panel.setAttribute("role", "dialog");
@@ -48,7 +48,7 @@
   panel.innerHTML =
     '<div class="wchat__head">' +
     '<span class="av"><svg viewBox="0 0 24 24" fill="none" stroke="#f0ede5" stroke-width="1.9" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.9-.9L3 20l1-4.1A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg></span>' +
-    "<div><h4>Wolf Hair Assistant</h4><p>Typically replies in a few seconds</p></div>" +
+    "<div><h4>Clara</h4><p>Wolf Hair Restoration assistant</p></div>" +
     '<button class="wchat__x" aria-label="Close chat">' +
     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>' +
     "</button></div>" +

@@ -10,10 +10,15 @@ const MODEL = "claude-haiku-4-5"; // cheapest current model
 const FALLBACK =
   "I'm sorry, I can't answer that right now. Please call our Cincinnati office at 513-774-0400 or request a free consultation and our team will be glad to help.";
 
-const SYSTEM = `You are the friendly virtual assistant for Wolf Hair Restoration, a doctor-led hair transplant clinic in Cincinnati, Ohio. You help website visitors with questions about the clinic, its doctors, procedures, pricing, financing, and the consultation process.
+const SYSTEM = `You are Clara, the warm and welcoming virtual assistant for Wolf Hair Restoration, a doctor-led hair transplant clinic in Cincinnati, Ohio. You help website visitors with questions about the clinic, its doctors, procedures, pricing, financing, and the consultation process.
+
+Tone:
+- You are genuinely friendly, kind, and reassuring. Hair loss can be a sensitive subject, so be welcoming and encouraging, never clinical or pushy.
+- Greet people warmly. If someone says hello, introduce yourself as Clara and invite their question.
+- Sound human and approachable. A little warmth ("Great question!", "Happy to help!") is welcome, but stay natural and not over the top.
 
 Rules:
-- Be warm, concise, and plain-spoken. Use American English. Do not use em dashes or en dashes.
+- Be concise and plain-spoken. Use American English. Do not use em dashes or en dashes.
 - Answer ONLY from the reference information provided. Never invent facts, prices, claims, or statistics. If something is not covered or you are unsure, say so and invite the visitor to call 513-774-0400 or book a free consultation.
 - You are not a doctor. Do not diagnose, give medical advice, or promise results. Note that individual results vary. For anything specific to a person's hair, recommend a free consultation.
 - Do not ask for or store sensitive personal or health information. To book, point visitors to the consultation form on the page or to call 513-774-0400.
@@ -110,6 +115,39 @@ async function getGrounding() {
   return CACHE.text;
 }
 
+// ---- simple per-IP rate limit (per warm instance) ----
+const RL = new Map(); // ip -> [timestamps]
+const RL_MAX = 12; // requests
+const RL_WINDOW = 60 * 1000; // per 60 seconds
+
+function rateLimited(ip) {
+  if (!ip) return false;
+  const now = Date.now();
+  let hits = (RL.get(ip) || []).filter((t) => now - t < RL_WINDOW);
+  if (hits.length >= RL_MAX) {
+    RL.set(ip, hits);
+    return true;
+  }
+  hits.push(now);
+  RL.set(ip, hits);
+  if (RL.size > 5000) {
+    for (const [k, v] of RL) {
+      if (!v.length || now - v[v.length - 1] > RL_WINDOW) RL.delete(k);
+    }
+  }
+  return false;
+}
+
+function clientIp(headers) {
+  const h = headers || {};
+  return (
+    h["x-nf-client-connection-ip"] ||
+    (h["x-forwarded-for"] || "").split(",")[0].trim() ||
+    h["client-ip"] ||
+    ""
+  );
+}
+
 // ---- request helpers ----
 const JSON_HEADERS = { "Content-Type": "application/json", "Cache-Control": "no-store" };
 
@@ -131,6 +169,17 @@ export const handler = async (event) => {
   }
   if (!originAllowed(event.headers && (event.headers.origin || event.headers.Origin))) {
     return { statusCode: 403, headers: JSON_HEADERS, body: JSON.stringify({ error: "forbidden" }) };
+  }
+
+  if (rateLimited(clientIp(event.headers))) {
+    return {
+      statusCode: 429,
+      headers: JSON_HEADERS,
+      body: JSON.stringify({
+        reply:
+          "You're sending messages quickly! Give me a moment to catch up, or call our team directly at 513-774-0400 and they'll be happy to help.",
+      }),
+    };
   }
 
   let body;
