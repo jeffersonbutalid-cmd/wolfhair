@@ -576,6 +576,10 @@ html.reveal-show .reveal { opacity: 1 !important; transform: none !important; tr
 .wchat__send { flex: none; width: 42px; height: 42px; border: 0; border-radius: 12px; background: var(--accent); color: var(--ink); display: grid; place-items: center; cursor: pointer; transition: background .2s ease; }
 .wchat__send:hover { background: var(--accent-deep); }
 .wchat__send:disabled { opacity: .5; cursor: default; }
+.wchat__quick { margin-top: 9px; }
+.wchat__book { display: flex; align-items: center; justify-content: center; gap: .5em; width: 100%; padding: .72em 1em; border-radius: 12px; background: var(--accent); color: var(--ink); font-weight: 600; font-size: .92rem; text-decoration: none; transition: background .2s ease, transform .15s ease; }
+.wchat__book:hover { background: var(--accent-deep); transform: translateY(-1px); }
+.wchat__book svg { flex: none; }
 .wchat__note { margin: .55em 2px 0; font-size: .68rem; color: var(--slate); text-align: center; }
 
 /* ---------- click-to-directions address link ---------- */

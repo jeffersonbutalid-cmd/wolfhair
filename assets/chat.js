@@ -16,6 +16,7 @@
   var doc = document;
   var history = []; // {role, content} for the API
   var busy = false;
+  var consultHref = doc.getElementById("consult") ? "#consult" : "index.html#consult";
 
   function el(tag, cls, html) {
     var n = doc.createElement(tag);
@@ -42,6 +43,45 @@
     s = s.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
     return s.replace(/\n/g, "<br>");
   }
+
+  // ---- notification sound (synthesized, no asset) ----
+  var actx;
+  function ensureAudio() {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === "suspended") actx.resume();
+    } catch (e) {}
+  }
+  function ding() {
+    if (window.WOLF_CHAT_SOUND === false) return;
+    ensureAudio();
+    if (!actx) return;
+    try {
+      var now = actx.currentTime;
+      [[880, 0], [1175, 0.09]].forEach(function (p) {
+        var o = actx.createOscillator();
+        var g = actx.createGain();
+        o.type = "sine";
+        o.frequency.value = p[0];
+        o.connect(g);
+        g.connect(actx.destination);
+        var t = now + p[1];
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.12, t + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+        o.start(t);
+        o.stop(t + 0.2);
+      });
+    } catch (e) {}
+  }
+  // unlock audio on the first user interaction (browser autoplay policy)
+  function unlock() {
+    ensureAudio();
+    doc.removeEventListener("pointerdown", unlock);
+    doc.removeEventListener("keydown", unlock);
+  }
+  doc.addEventListener("pointerdown", unlock, { once: true });
+  doc.addEventListener("keydown", unlock, { once: true });
 
   // ---- launcher ----
   var launch = el("button", "wchat-launch", avatar("wav--sm") + "<span>Chat with Ashley</span>");
@@ -74,6 +114,11 @@
     '<textarea rows="1" placeholder="Type your question..." aria-label="Type your message"></textarea>' +
     '<button class="wchat__send" aria-label="Send message"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>' +
     "</div>" +
+    '<div class="wchat__quick">' +
+    '<a class="wchat__book" href="' + consultHref + '">' +
+    '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>' +
+    " Book a free consultation</a>" +
+    "</div>" +
     '<p class="wchat__note">Assistant can make mistakes. This is not medical advice. Individual results vary.</p>' +
     "</div>";
 
@@ -85,6 +130,7 @@
   var input = panel.querySelector("textarea");
   var sendBtn = panel.querySelector(".wchat__send");
   var closeBtn = panel.querySelector(".wchat__x");
+  var bookBtn = panel.querySelector(".wchat__book");
 
   function scrollDown() { body.scrollTop = body.scrollHeight; }
 
@@ -102,6 +148,27 @@
     return t;
   }
 
+  // reveal a bot reply character by character, like a person typing
+  function typeOut(text, done) {
+    var b = el("div", "wmsg wmsg--bot", "");
+    body.appendChild(b);
+    scrollDown();
+    var i = 0;
+    var stepSize = Math.max(1, Math.round(text.length / 110)); // finish long replies in ~2s
+    function step() {
+      i = Math.min(text.length, i + stepSize);
+      b.innerHTML = format(text.slice(0, i));
+      scrollDown();
+      if (i < text.length) {
+        setTimeout(step, 18 + Math.random() * 22);
+      } else {
+        b.innerHTML = format(text);
+        if (done) done();
+      }
+    }
+    step();
+  }
+
   // ---- teaser logic: pops up, disappears when the chat is clicked/opened ----
   var teaseTimer, teaseHideTimer;
   function hideTease() {
@@ -114,7 +181,10 @@
       if (sessionStorage.getItem("wolf_tease_done")) return;
     } catch (e) {}
     teaseTimer = setTimeout(function () {
-      if (!opened) tease.classList.add("is-show");
+      if (!opened) {
+        tease.classList.add("is-show");
+        ding();
+      }
       teaseHideTimer = setTimeout(hideTease, 14000);
     }, 3500);
   }
@@ -127,7 +197,12 @@
     launch.classList.add("is-hidden");
     if (!opened) {
       opened = true;
-      addBubble("bot", GREETING);
+      var typing = showTyping();
+      setTimeout(function () {
+        typing.remove();
+        ding();
+        typeOut(GREETING);
+      }, 650);
     }
     setTimeout(function () { input.focus(); }, 60);
   }
@@ -164,8 +239,10 @@
         data && data.reply
           ? data.reply
           : "Sorry, something went wrong. Please call 513-774-0400 and our team will help.";
-      addBubble("bot", reply);
-      history.push({ role: "assistant", content: reply });
+      ding();
+      typeOut(reply, function () {
+        history.push({ role: "assistant", content: reply });
+      });
       if (window.dataLayer) window.dataLayer.push({ event: "chat_message" });
     } catch (e) {
       typing.remove();
@@ -181,6 +258,11 @@
   launch.addEventListener("click", open);
   closeBtn.addEventListener("click", close);
   sendBtn.addEventListener("click", send);
+  bookBtn.addEventListener("click", function () {
+    // let the anchor jump to #consult, then close so the form is visible
+    if (window.dataLayer) window.dataLayer.push({ event: "chat_book_consultation" });
+    close();
+  });
   tease.addEventListener("click", function (e) {
     if (e.target.closest(".wtease__x")) {
       hideTease();
