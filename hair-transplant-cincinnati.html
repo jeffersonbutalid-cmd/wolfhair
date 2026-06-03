@@ -389,26 +389,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <div class="reveal" data-d="1" style="background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:clamp(20px,3vw,30px);box-shadow:var(--shadow-md)">
       <div class="lead-form-head"><h3>Book your free consultation</h3><p>Takes under a minute. We will call to find a time that works.</p></div>
-      <iframe
-        src="https://links.wolfhair.com/widget/form/PEPmJ6yP3vmanGxIwZ6x"
-        class="ghl-embed"
-        id="inline-PEPmJ6yP3vmanGxIwZ6x"
-        data-layout="{'id':'INLINE'}"
-        data-trigger-type="alwaysShow"
-        data-trigger-value=""
-        data-activation-type="alwaysActivated"
-        data-activation-value=""
-        data-deactivation-type="neverDeactivate"
-        data-deactivation-value=""
-        data-form-name="Basic Lead Gen Form - Website"
-        data-height="1241"
-        data-layout-iframe-id="inline-PEPmJ6yP3vmanGxIwZ6x"
-        data-form-id="PEPmJ6yP3vmanGxIwZ6x"
-        title="Basic Lead Gen Form - Website"></iframe>
-      <div class="disclosure">
-        <p>By submitting this form, you authorize Wolf Hair Restoration to text/call the number you provide for informational/transactional messages, possibly using automated means. Msg/data rates apply, msg frequency varies. Consent is not a condition of purchase. See <a href="https://www.wolfhair.com/terms" target="_blank" rel="noopener">terms</a> and <a href="https://www.wolfhair.com/privacy-policy" target="_blank" rel="noopener">privacy policy</a>. Text HELP for help and STOP to unsubscribe.</p>
-        <p>If you opt in to promotional messages on the form, you also authorize Wolf Hair Restoration to text/call you for promotional messages, possibly using automated means. Msg/data rates apply, msg frequency varies. Consent is not a condition of purchase. See <a href="https://www.wolfhair.com/terms" target="_blank" rel="noopener">terms</a> and <a href="https://www.wolfhair.com/privacy-policy" target="_blank" rel="noopener">privacy policy</a>. Text HELP for help and STOP to unsubscribe.</p>
-      </div>
+      <form class="form" data-wolf-form data-endpoint="https://services.leadconnectorhq.com/hooks/vJ1wfQ4ORRnPRWqmhF8j/webhook-trigger/41ff8704-5857-40db-b474-865ceb4ce1ee" aria-label="Consultation request">
+        <div class="form__fields" style="display:grid;gap:16px">
+          <div class="form__row">
+            <div class="field"><label>First name <span class="req">*</span></label><input name="first_name" required autocomplete="given-name" /></div>
+            <div class="field"><label>Last name <span class="req">*</span></label><input name="last_name" required autocomplete="family-name" /></div>
+          </div>
+          <div class="form__row">
+            <div class="field"><label>Mobile phone <span class="req">*</span></label><input name="phone" type="tel" required autocomplete="tel" placeholder="(513) 555-0123" /></div>
+            <div class="field"><label>Email <span class="req">*</span></label><input name="email" type="email" required autocomplete="email" placeholder="you@email.com" /></div>
+          </div>
+          <div class="field"><label>What are you hoping to improve?</label><select name="interest"><option value="">Select one (optional)</option><option>Receding hairline</option><option>Thinning crown</option><option>Overall density</option><option>Not sure yet</option></select></div>
+          <div class="field"><label>Anything you'd like us to know?</label><textarea name="message" placeholder="Optional"></textarea></div>
+          <label class="consent"><input type="checkbox" name="consent_transactional" required /><span>By submitting, I agree that Wolf Hair Restoration may contact me by phone, text, and email about my consultation. Message and data rates may apply, message frequency varies, and I can reply STOP to opt out or HELP for help. <a href="https://www.wolfhair.com/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a> and <a href="https://www.wolfhair.com/cookie-policy/" target="_blank" rel="noopener">Terms</a>.</span></label>
+          <label class="consent"><input type="checkbox" name="consent_promotional" /><span>Optional: I'd also like to receive occasional offers and hair-care tips by text and email.</span></label>
+          <button class="btn btn--primary btn--block btn--lg" type="submit">Request my free consultation</button>
+          <p class="form__legal">We take your privacy seriously. Your information is used only to contact you about your care and is never sold.</p>
+        </div>
+        <div class="form__ok">
+          <strong style="display:block;font-size:1.2rem;margin-bottom:.3em">Thank you.</strong>
+          Our Cincinnati team will reach out shortly to schedule your free consultation. Prefer to talk now? Call 513-774-0400.
+        </div>
+      </form>
     </div>
   </div>
 </section>
@@ -454,6 +456,5 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <script src="assets/wolf.js" defer></script>
 <script src="assets/chat.js" defer></script>
-<script src="https://links.wolfhair.com/js/form_embed.js" defer></script>
 </body>
 </html>
