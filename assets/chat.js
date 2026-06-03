@@ -169,6 +169,29 @@
     step();
   }
 
+  // ---- predefined FAQ quick replies ----
+  var SUGGESTIONS = [
+    "How much does a hair transplant cost?",
+    "FUE or FUT, which is right for me?",
+    "Do you offer financing?"
+  ];
+  var suggBox = null;
+  function clearSuggestions() {
+    if (suggBox) { suggBox.remove(); suggBox = null; }
+  }
+  function renderSuggestions() {
+    clearSuggestions();
+    suggBox = el("div", "wsugg");
+    SUGGESTIONS.forEach(function (q) {
+      var b = el("button", null, q);
+      b.type = "button";
+      b.addEventListener("click", function () { send(q); });
+      suggBox.appendChild(b);
+    });
+    body.appendChild(suggBox);
+    scrollDown();
+  }
+
   // ---- teaser logic: pops up, disappears when the chat is clicked/opened ----
   var teaseTimer, teaseHideTimer;
   function hideTease() {
@@ -201,7 +224,7 @@
       setTimeout(function () {
         typing.remove();
         ding();
-        typeOut(GREETING);
+        typeOut(GREETING, renderSuggestions);
       }, 650);
     }
     setTimeout(function () { input.focus(); }, 60);
@@ -216,9 +239,10 @@
     input.style.height = Math.min(input.scrollHeight, 120) + "px";
   }
 
-  async function send() {
-    var text = input.value.trim();
+  async function send(preset) {
+    var text = (preset != null ? preset : input.value).trim();
     if (!text || busy) return;
+    clearSuggestions();
     busy = true;
     sendBtn.disabled = true;
     input.value = "";
@@ -257,7 +281,7 @@
   // ---- events ----
   launch.addEventListener("click", open);
   closeBtn.addEventListener("click", close);
-  sendBtn.addEventListener("click", send);
+  sendBtn.addEventListener("click", function () { send(); });
   bookBtn.addEventListener("click", function () {
     // let the anchor jump to #consult, then close so the form is visible
     if (window.dataLayer) window.dataLayer.push({ event: "chat_book_consultation" });
