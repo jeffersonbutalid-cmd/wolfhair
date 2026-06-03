@@ -508,3 +508,16 @@ html.reveal-show .reveal { opacity: 1 !important; transform: none !important; tr
 @media (max-width: 760px) {
   .wrap[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
 }
+
+/* ---------- dark sticky header (matches the footer color) ---------- */
+.site-header--ink { background: var(--ink); backdrop-filter: none; }
+.site-header--ink.is-stuck { border-color: rgba(255,255,255,.10); box-shadow: 0 4px 24px rgba(0,0,0,.28); }
+.site-header--ink .brand-logo { filter: brightness(0) invert(1); opacity: .96; }
+.site-header--ink .nav-links a { color: rgba(244,238,227,.82); }
+.site-header--ink .nav-links a:hover { color: var(--bone); }
+.site-header--ink .nav-phone { color: var(--bone); }
+.site-header--ink .nav-phone svg { color: var(--sky-tint); }
+.site-header--ink .nav-toggle.btn--ghost { color: var(--bone); border-color: rgba(255,255,255,.28); background: transparent; }
+.site-header--ink .nav-toggle.btn--ghost:hover { background: rgba(255,255,255,.08); border-color: var(--bone); }
+.site-header--ink #mobile-nav a { color: rgba(244,238,227,.85); }
+.site-header--ink #mobile-nav a:hover { color: var(--bone); }
