@@ -46,7 +46,7 @@
   // append tracking to GHL / LeadConnector iframes (native embed path B)
   $$("iframe").forEach(function (f) {
     var src = f.getAttribute("src") || "";
-    if (!/leadconnector|gohighlevel|msgsndr/i.test(src)) return;
+    if (!/leadconnector|gohighlevel|msgsndr|\/widget\/form\//i.test(src)) return;
     try {
       var u = new URL(src, location.href);
       Object.keys(TRACK).forEach(function (k) {
