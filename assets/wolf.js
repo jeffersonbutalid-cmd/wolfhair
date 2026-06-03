@@ -101,9 +101,12 @@
         return;
       }
       if (btn) { btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = "Sending..."; }
+      // text/plain + no-cors keeps this a "simple" cross-origin request so the
+      // GHL inbound webhook receives it without a blocked CORS preflight.
       fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=UTF-8" },
         body: JSON.stringify(data)
       }).then(function () { finish(); })
         .catch(function () {
