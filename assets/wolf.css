@@ -521,3 +521,11 @@ html.reveal-show .reveal { opacity: 1 !important; transform: none !important; tr
 .site-header--ink .nav-toggle.btn--ghost:hover { background: rgba(255,255,255,.08); border-color: var(--bone); }
 .site-header--ink #mobile-nav a { color: rgba(244,238,227,.85); }
 .site-header--ink #mobile-nav a:hover { color: var(--bone); }
+
+/* ---------- hide hero imagery on mobile (image-free hero) ---------- */
+@media (max-width: 760px) {
+  .hero__bg, .hero__scrim { display: none; }
+  .hero { min-height: auto; }
+  .hero__proof { display: none; }   /* homepage David before/after cards */
+  .phero__proof { display: none; }  /* inner-page hero proof image */
+}

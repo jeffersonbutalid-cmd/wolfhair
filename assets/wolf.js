@@ -56,6 +56,27 @@
     } catch (e) {}
   });
 
+  // thank-you page to redirect to after a successful submission
+  var THANKYOU = (typeof window.WOLF_THANKYOU_URL === "string") ? window.WOLF_THANKYOU_URL : "/thank-you";
+
+  // GHL / LeadConnector embed (path B): redirect to the thank-you page on submit.
+  // Best effort from the parent. For guaranteed behavior also set the redirect URL
+  // in the GHL form builder (On Submit -> Open URL). Only listen if a GHL form exists.
+  var hasGHLForm = $$("iframe").some(function (f) {
+    return /leadconnector|gohighlevel|msgsndr|\/widget\/form\//i.test(f.getAttribute("src") || "");
+  });
+  if (hasGHLForm && THANKYOU) {
+    on(window, "message", function (e) {
+      try {
+        var d = e.data;
+        var key = typeof d === "string" ? d : (d && (d.type || d.event || d.action || ""));
+        if (key && /form[\s_-]?sub|formsubmit|submitted|submission.?success/i.test(String(key))) {
+          window.location.assign(THANKYOU);
+        }
+      } catch (err) {}
+    });
+  }
+
   /* ---------- 2. styled form submit ---------- */
   $$("form[data-wolf-form]").forEach(function (form) {
     on(form, "submit", function (e) {
@@ -68,9 +89,9 @@
       data.submitted_at = new Date().toISOString();
 
       var finish = function () {
-        form.classList.add("is-sent");
-        form.scrollIntoView ? null : null;
         if (window.dataLayer) window.dataLayer.push({ event: "generate_lead" });
+        if (THANKYOU) { window.location.assign(THANKYOU); return; }
+        form.classList.add("is-sent");
       };
 
       if (!endpoint) {

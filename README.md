@@ -33,6 +33,14 @@ Static site: plain HTML, CSS, and JS with no build step.
 
 Every push to the connected branch triggers an automatic redeploy.
 
+## Tracking & conversions
+
+- Google Tag Manager (`GTM-52LFNR9P`) is installed on every page (head script + `<body>` noscript).
+- On a successful submission the visitor is redirected to `/thank-you`. That page pushes a `lead_form_success` dataLayer event and is the recommended conversion trigger in GTM. It is `noindex` and excluded from the sitemap.
+- The styled homepage form redirects via `wolf.js` (`window.WOLF_THANKYOU_URL`, default `/thank-you`).
+- The GoHighLevel iframe forms also attempt a parent redirect on submit, but for guaranteed behavior set the redirect URL to `https://lp.wolfhair.info/thank-you` in the GHL form builder (On Submit -> Open URL).
+- HIPAA: keep name/email/phone out of GTM tags and pixels; use server-side, hashed Enhanced Conversions only (see CLAUDE.md).
+
 ## Lead capture (GoHighLevel)
 
 The consultation forms post to a GoHighLevel Inbound Webhook. Before launch, set the
