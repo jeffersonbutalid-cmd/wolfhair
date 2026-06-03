@@ -498,3 +498,13 @@ html.reveal-show .reveal { opacity: 1 !important; transform: none !important; tr
 .disclosure p { font-size: .72rem; color: var(--slate); line-height: 1.5; margin: 0 0 .6em; }
 .disclosure p:last-child { margin-bottom: 0; }
 .disclosure a { color: var(--clay); text-decoration: underline; text-underline-offset: 2px; }
+
+/* hero proof image (replaces the media placeholder on inner pages) */
+.phero__proof { margin: 0; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow-md); }
+.phero__proof img { width: 100%; border-radius: calc(var(--radius) - 6px); display: block; }
+.phero__proof figcaption { margin-top: 10px; text-align: center; font-size: .88rem; color: var(--slate); font-weight: 500; }
+
+/* layout fix: stack inline two-column section grids on small screens */
+@media (max-width: 760px) {
+  .wrap[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+}

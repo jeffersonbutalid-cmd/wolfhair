@@ -5,12 +5,25 @@ Static site: plain HTML, CSS, and JS with no build step.
 
 ## Structure
 
-- `index.html` — the landing page
+- `index.html` — homepage landing page
+- `hair-transplant-cincinnati.html` — local "stay local" landing page
+- `fue-artas.html` — FUE / ARTAS / FUT procedure landing page
+- `cost-financing.html` — pricing and financing landing page
 - `assets/wolf.css` — shared styles (design tokens drive the theme)
 - `assets/wolf.js` — interactions: lead form, before/after slider, reviews carousel, FAQ, scroll reveals, gclid/UTM capture
-- `assets/img/` — page imagery
+- `assets/img/` — page imagery, favicons, and the social share image
+- `favicon.ico`, `site.webmanifest` — favicon set (built from the brand mark) and PWA manifest
+- `robots.txt`, `sitemap.xml`, `llms.txt` — crawl, indexing, and AI/answer-engine discovery
 - `netlify.toml` — Netlify publish settings, clean URLs, security and cache headers
 - `CLAUDE.md` — brand, compliance, and content conventions (read before editing copy)
+
+## SEO / AEO / GEO
+
+- Every page has a unique title, meta description, canonical, Open Graph + Twitter cards, and a shared 1200x630 share image.
+- Structured data (JSON-LD): MedicalClinic with full NAP, geo, and service area; Physician, MedicalProcedure, Offer, FAQPage, and BreadcrumbList.
+- Local SEO: consistent NAP across pages, geo meta tags, and `geo`/`areaServed` in schema.
+- `robots.txt` explicitly allows major AI answer-engine crawlers; `llms.txt` summarizes the business for them.
+- The placeholder domain is `lp.wolfhair.info`; update it in canonicals, OG/Twitter URLs, `sitemap.xml`, `robots.txt`, `llms.txt`, and the JSON-LD before launch if the production domain differs.
 
 ## Deploy with GitHub + Netlify
 
