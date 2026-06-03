@@ -1,5 +1,5 @@
 /* =========================================================================
-   Wolf Hair Restoration - chat widget
+   Wolf Hair Restoration - chat widget ("Ashley")
    Floating assistant that posts to the /api/chat serverless function.
    No external dependencies. The API key never touches the browser.
    ========================================================================= */
@@ -9,8 +9,9 @@
   window.__wolfChat = true;
 
   var ENDPOINT = window.WOLF_CHAT_ENDPOINT || "/api/chat";
+  var AVATAR = window.WOLF_AVATAR || "assets/img/ashley.jpg";
   var GREETING =
-    "Hi there, I'm Clara, your friendly assistant here at Wolf Hair Restoration. So glad you stopped by! Whether you're curious about our doctors, the different procedures, pricing, or booking a free consultation, I'm here to help. What can I do for you today?";
+    "Hi there, I'm Ashley, your friendly assistant here at Wolf Hair Restoration. So glad you stopped by! Whether you're curious about our doctors, the procedures, pricing, or booking a free consultation, I'm here to help. What can I do for you today?";
 
   var doc = document;
   var history = []; // {role, content} for the API
@@ -23,7 +24,16 @@
     return n;
   }
 
-  // Minimal, safe linkifier: escape text, then turn phone + urls into links.
+  // photo avatar with a graceful monogram fallback if the image is missing
+  function avatar(extra) {
+    return (
+      '<span class="wav ' + (extra || "") + '">' +
+      '<img src="' + AVATAR + '" alt="Ashley" onerror="this.remove()">' +
+      '<span class="wav__i">A</span></span>'
+    );
+  }
+
+  // escape, then linkify phone numbers and urls
   function format(text) {
     var s = String(text).replace(/[&<>"]/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
@@ -33,22 +43,28 @@
     return s.replace(/\n/g, "<br>");
   }
 
-  // ---- build DOM ----
-  var launch = el(
-    "button",
-    "wchat-launch",
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.9-.9L3 20l1-4.1A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg><span>Chat with Clara</span>'
-  );
-  launch.setAttribute("aria-label", "Open chat with Clara, the Wolf Hair Restoration assistant");
+  // ---- launcher ----
+  var launch = el("button", "wchat-launch", avatar("wav--sm") + "<span>Chat with Ashley</span>");
+  launch.setAttribute("aria-label", "Open chat with Ashley, the Wolf Hair Restoration assistant");
 
+  // ---- teaser bubble ----
+  var tease = el(
+    "div",
+    "wtease",
+    avatar("wav--sm") +
+      '<div class="wtease__body"><b>Ashley</b>Hi! Have a question about hair restoration or pricing? I\'m happy to help.</div>' +
+      '<button class="wtease__x" type="button" aria-label="Dismiss">&times;</button>'
+  );
+
+  // ---- panel ----
   var panel = el("section", "wchat");
   panel.setAttribute("role", "dialog");
-  panel.setAttribute("aria-label", "Wolf Hair Restoration chat assistant");
+  panel.setAttribute("aria-label", "Chat with Ashley, the Wolf Hair Restoration assistant");
   panel.setAttribute("aria-modal", "false");
   panel.innerHTML =
     '<div class="wchat__head">' +
-    '<span class="av"><svg viewBox="0 0 24 24" fill="none" stroke="#f0ede5" stroke-width="1.9" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.9-.9L3 20l1-4.1A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/></svg></span>' +
-    "<div><h4>Clara</h4><p>Wolf Hair Restoration assistant</p></div>" +
+    avatar() +
+    "<div><h4>Ashley</h4><p>Wolf Hair Restoration assistant</p></div>" +
     '<button class="wchat__x" aria-label="Close chat">' +
     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>' +
     "</button></div>" +
@@ -61,6 +77,7 @@
     '<p class="wchat__note">Assistant can make mistakes. This is not medical advice. Individual results vary.</p>' +
     "</div>";
 
+  doc.body.appendChild(tease);
   doc.body.appendChild(launch);
   doc.body.appendChild(panel);
 
@@ -69,9 +86,7 @@
   var sendBtn = panel.querySelector(".wchat__send");
   var closeBtn = panel.querySelector(".wchat__x");
 
-  function scrollDown() {
-    body.scrollTop = body.scrollHeight;
-  }
+  function scrollDown() { body.scrollTop = body.scrollHeight; }
 
   function addBubble(role, text) {
     var b = el("div", "wmsg " + (role === "user" ? "wmsg--user" : "wmsg--bot"), format(text));
@@ -87,17 +102,34 @@
     return t;
   }
 
+  // ---- teaser logic: pops up, disappears when the chat is clicked/opened ----
+  var teaseTimer, teaseHideTimer;
+  function hideTease() {
+    tease.classList.remove("is-show");
+    clearTimeout(teaseTimer);
+    clearTimeout(teaseHideTimer);
+  }
+  function maybeShowTease() {
+    try {
+      if (sessionStorage.getItem("wolf_tease_done")) return;
+    } catch (e) {}
+    teaseTimer = setTimeout(function () {
+      if (!opened) tease.classList.add("is-show");
+      teaseHideTimer = setTimeout(hideTease, 14000);
+    }, 3500);
+  }
+
   var opened = false;
   function open() {
+    hideTease();
+    try { sessionStorage.setItem("wolf_tease_done", "1"); } catch (e) {}
     panel.classList.add("is-open");
     launch.classList.add("is-hidden");
     if (!opened) {
       opened = true;
       addBubble("bot", GREETING);
     }
-    setTimeout(function () {
-      input.focus();
-    }, 60);
+    setTimeout(function () { input.focus(); }, 60);
   }
   function close() {
     panel.classList.remove("is-open");
@@ -126,9 +158,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: history.slice(-12) }),
       });
-      var data = await res.json().catch(function () {
-        return {};
-      });
+      var data = await res.json().catch(function () { return {}; });
       typing.remove();
       var reply =
         data && data.reply
@@ -151,6 +181,14 @@
   launch.addEventListener("click", open);
   closeBtn.addEventListener("click", close);
   sendBtn.addEventListener("click", send);
+  tease.addEventListener("click", function (e) {
+    if (e.target.closest(".wtease__x")) {
+      hideTease();
+      try { sessionStorage.setItem("wolf_tease_done", "1"); } catch (err) {}
+      return;
+    }
+    open();
+  });
   input.addEventListener("input", autosize);
   input.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -161,4 +199,6 @@
   doc.addEventListener("keydown", function (e) {
     if (e.key === "Escape" && panel.classList.contains("is-open")) close();
   });
+
+  maybeShowTease();
 })();

@@ -243,8 +243,21 @@
   /* ---------- 7. header + mobile nav ---------- */
   var header = $(".site-header");
   if (header) {
-    var onScroll = function () { header.classList.toggle("is-stuck", window.scrollY > 8); };
+    var onScroll = function () { header.classList.toggle("is-stuck", window.scrollY > 24); };
     on(window, "scroll", onScroll, { passive: true }); onScroll();
+  }
+
+  /* ---------- 7b. announcement bar (size + dismiss) ---------- */
+  var annc = $("#annc");
+  if (annc) {
+    var setAnncH = function () {
+      var h = annc.offsetParent === null ? 0 : annc.offsetHeight;
+      doc.documentElement.style.setProperty("--annc-h", h + "px");
+    };
+    setAnncH();
+    on(window, "resize", setAnncH, { passive: true });
+    on(window, "load", setAnncH);
+    on($(".annc__x", annc), "click", function () { annc.style.display = "none"; setAnncH(); });
   }
   var toggle = $(".nav-toggle"), drawer = $("#mobile-nav");
   on(toggle, "click", function () { if (drawer) drawer.toggleAttribute("hidden"); });
