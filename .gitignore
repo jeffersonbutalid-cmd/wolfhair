@@ -5,5 +5,7 @@ Thumbs.db
 .idea/
 .vscode/
 
-# Netlify local
+# Node / Netlify local
+node_modules/
 .netlify/
+npm-debug.log*

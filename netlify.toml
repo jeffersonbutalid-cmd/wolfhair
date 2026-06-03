@@ -5,6 +5,17 @@
   publish = "."
   command = ""
 
+# Serverless functions (chat assistant). Netlify installs deps from package.json.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Friendly path for the chat function (same-origin rewrite, no redirect).
+[[redirects]]
+  from = "/api/chat"
+  to = "/.netlify/functions/chat"
+  status = 200
+
 # Clean URLs: serve /page instead of /page.html and drop the extension.
 [[redirects]]
   from = "/index.html"

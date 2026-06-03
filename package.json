@@ -1,0 +1,12 @@
+{
+  "name": "wolf-hair-restoration",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Wolf Hair Restoration landing pages + chat assistant function",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.100.1"
+  }
+}
