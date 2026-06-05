@@ -9,8 +9,28 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-52LFNR9P');</script>
 <!-- End Google Tag Manager -->
-<!-- conversion signal for GTM (trigger on this event or on the /thank-you pageview) -->
-<script>window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:'lead_form_success'});</script>
+<!-- Push the submitted lead (email/phone) into the dataLayer for GTM Enhanced Conversions.
+     Values come from sessionStorage (set on form submit), with a ?email=&phone= URL fallback. -->
+<script>
+window.dataLayer = window.dataLayer || [];
+(function () {
+  var lead = {};
+  try { lead = JSON.parse(sessionStorage.getItem('wolf_lead') || '{}'); } catch (e) {}
+  try {
+    var p = new URLSearchParams(location.search);
+    ['email','phone','first_name','last_name'].forEach(function (k) {
+      if (!lead[k] && p.get(k)) lead[k] = p.get(k);
+    });
+  } catch (e) {}
+  var ev = { event: 'lead_form_success' };
+  if (lead.email) ev.email = lead.email;
+  if (lead.phone) ev.phone = lead.phone;
+  if (lead.first_name) ev.first_name = lead.first_name;
+  if (lead.last_name) ev.last_name = lead.last_name;
+  window.dataLayer.push(ev);
+  try { sessionStorage.removeItem('wolf_lead'); } catch (e) {}
+})();
+</script>
 <script>document.documentElement.classList.add('js');</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Thank You | Wolf Hair Restoration</title>

@@ -89,6 +89,16 @@
       data.submitted_at = new Date().toISOString();
 
       var finish = function () {
+        // Stash the submitted lead so the thank-you page can push it to the
+        // dataLayer (for GTM). Same-origin sessionStorage keeps PII out of the URL.
+        try {
+          sessionStorage.setItem("wolf_lead", JSON.stringify({
+            email: data.email || "",
+            phone: data.phone || "",
+            first_name: data.first_name || "",
+            last_name: data.last_name || ""
+          }));
+        } catch (e) {}
         if (window.dataLayer) window.dataLayer.push({ event: "generate_lead" });
         if (THANKYOU) { window.location.assign(THANKYOU); return; }
         form.classList.add("is-sent");
