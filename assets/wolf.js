@@ -15,7 +15,7 @@
 
   /* ---------- 1. tracking params ---------- */
   var TRACK_KEYS = ["gclid","gbraid","wbraid","fbclid","msclkid",
-    "utm_source","utm_medium","utm_campaign","utm_term","utm_content"];
+    "utm_source","utm_medium","utm_campaign","utm_term","utm_content","keyword"];
   var STORE = "wolf_track";
 
   function captureParams() {
