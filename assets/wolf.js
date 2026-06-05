@@ -87,6 +87,9 @@
       new FormData(form).forEach(function (v, k) { data[k] = v; });
       data.page_title = doc.title;
       data.submitted_at = new Date().toISOString();
+      // Always include the tracking keys (empty string if absent) so downstream
+      // tools like GHL always see a stable field schema (e.g. gclid is always present).
+      TRACK_KEYS.forEach(function (k) { if (!(k in data)) data[k] = ""; });
 
       var finish = function () {
         // Stash the submitted lead so the thank-you page can push it to the
