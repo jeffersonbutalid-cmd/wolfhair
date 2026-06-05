@@ -16,6 +16,12 @@
   to = "/.netlify/functions/chat"
   status = 200
 
+# Server-side Google Ads offline conversion upload (gclid-only). GHL posts here.
+[[redirects]]
+  from = "/api/conversion"
+  to = "/.netlify/functions/gads-conversion"
+  status = 200
+
 # Clean URLs: serve /page instead of /page.html and drop the extension.
 [[redirects]]
   from = "/index.html"
