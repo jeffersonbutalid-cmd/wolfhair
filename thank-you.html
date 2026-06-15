@@ -43,6 +43,8 @@ window.dataLayer = window.dataLayer || [];
   if (lead.first_name) ev.first_name = lead.first_name;
   if (lead.last_name) ev.last_name = lead.last_name;
   window.dataLayer.push(ev);
+  // Meta Pixel: count the submission as a Lead (no PII sent).
+  try { if (window.fbq) fbq('track', 'Lead'); } catch (e) {}
   try { sessionStorage.removeItem('wolf_lead'); } catch (e) {}
 })();
 </script>
