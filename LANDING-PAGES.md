@@ -44,8 +44,9 @@ missing values fall back to `core`.
 
 ## 2. Google Ads final-URL map
 
-Point each ad group's **Final URL** at the matching link. Netlify serves clean
-URLs (no `.html`).
+These pages are served from the **`lp.wolfhair.info`** subdomain. Point each ad
+group's **Final URL** at the matching link below (prefix with
+`https://lp.wolfhair.info`). Netlify serves clean URLs (no `.html`).
 
 | Ad group | Final URL |
 |----------|-----------|
