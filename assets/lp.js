@@ -161,6 +161,20 @@
     });
   });
 
+  /* ---------- before/after drag-to-compare slider ---------- */
+  $$(".ba").forEach(function (ba) {
+    var clip = $(".ba__clip", ba), handle = $(".ba__handle", ba);
+    if (!clip || !handle) return;
+    function setP(p) { p = Math.max(2, Math.min(98, p)); clip.style.width = p + "%"; handle.style.left = p + "%"; }
+    function fromX(x) { var r = ba.getBoundingClientRect(); setP(((x - r.left) / r.width) * 100); }
+    var dragging = false;
+    handle.addEventListener("pointerdown", function (e) { dragging = true; try { handle.setPointerCapture(e.pointerId); } catch (err) {} });
+    ba.addEventListener("pointermove", function (e) { if (dragging) { fromX(e.clientX); e.preventDefault(); } });
+    window.addEventListener("pointerup", function () { dragging = false; });
+    ba.addEventListener("click", function (e) { if (!e.target.closest(".ba__handle")) fromX(e.clientX); });
+    setP(50);
+  });
+
   /* ---------- mobile nav toggle ---------- */
   var tgl = $(".lp-nav-toggle"), drawer = $("#lp-mobile-nav");
   if (tgl && drawer) tgl.addEventListener("click", function () { drawer.toggleAttribute("hidden"); });

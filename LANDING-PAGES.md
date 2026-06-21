@@ -119,8 +119,19 @@ fills the displayed number and `tel:` href from the config and fires a neutral
 
 ## 5. Where to drop HIPAA-authorized MEDIA
 
-Real patient media is **off by default**. Until populated, each media section
-renders a neutral placeholder (never stock photos or invented reviews).
+**Branding:** all three pages use the main site's look (Newsreader serif
+headings, bone palette, clay-blue accents, pale-yellow CTA) via `lp.css`.
+
+**Before/after slider:** the **hair-transplant page** carries a drag-to-compare
+slider (`.ba`) using the real authorized patient photos already on the main
+site (`assets/img/ba1-*`, `ba2-*`). The **Women's** and **Non-surgical** pages
+intentionally keep the neutral placeholder — male surgical-transplant photos
+would misrepresent those services. Add matching authorized media for each
+before showing a slider there.
+
+Real patient media is **off by default** on the placeholder sections. Until
+populated, each renders a neutral placeholder (never stock photos or invented
+reviews).
 
 Edit `MEDIA` in `assets/lp.config.js`:
 
