@@ -1,6 +1,6 @@
 /* =========================================================================
    Wolf Hair Restoration - Paid-search LP behavior
-   - city token fill, CallRail DNI, neutral analytics events (NO PHI)
+   - city token fill, static direct phone, neutral analytics events (NO PHI)
    - lead form post to BAA-covered FORM_ENDPOINT
    - MEDIA-gated before/after + testimonials (placeholder when empty)
    - sticky mobile call bar, FAQ, service emphasis
@@ -47,20 +47,31 @@
   var city = (qs.get("city") || "").replace(/[<>]/g, "").trim().slice(0, 40) || CFG.CITY_DEFAULT || "Cincinnati";
   $$("[data-city]").forEach(function (el) { el.textContent = city; });
 
-  /* ---------- phone (fallback display + tel links) ---------- */
-  $$("[data-phone-display]").forEach(function (el) { el.textContent = CFG.PHONE_DISPLAY || el.textContent; });
+  /* ---------- ad attribution (gclid/UTMs) -> CRM ONLY, never to tracking ----------
+     Captured at landing, persisted across the visit, and appended to the BAA-covered
+     form post so Google Ads can attribute the offline conversion. These are NOT PHI
+     and are NEVER pushed to dataLayer/gtag. ?service / ?city are intentionally excluded. */
+  var ATTR_KEYS = ["gclid", "gbraid", "wbraid", "fbclid", "msclkid",
+    "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
+  var STORE = "wolf_lp_attr";
+  function readAttr() { try { return JSON.parse(localStorage.getItem(STORE) || "{}"); } catch (e) { return {}; } }
+  function saveAttr() {
+    var a = readAttr(), changed = false;
+    ATTR_KEYS.forEach(function (k) {
+      var v = qs.get(k);
+      if (v) { a[k] = String(v).slice(0, 256); changed = true; }
+    });
+    if (changed) { try { localStorage.setItem(STORE, JSON.stringify(a)); } catch (e) {} }
+    return a;
+  }
+  var ATTR = saveAttr();
+
+  /* ---------- phone (static direct line; no DNI) + neutral call event ---------- */
+  $$("[data-phone-display]").forEach(function (el) { el.textContent = CFG.PHONE || el.textContent; });
   $$('a[data-call]').forEach(function (a) {
     if (CFG.PHONE_TEL) a.setAttribute("href", "tel:" + CFG.PHONE_TEL);
     a.addEventListener("click", function () { track("call_click"); });
   });
-
-  /* ---------- CallRail DNI (swaps numbers automatically) ---------- */
-  if (CFG.CALLRAIL_SWAP_SRC) {
-    var cr = doc.createElement("script");
-    cr.async = true;
-    cr.src = CFG.CALLRAIL_SWAP_SRC;
-    doc.head.appendChild(cr);
-  }
 
   /* ---------- legal links ---------- */
   $$("[data-privacy-url]").forEach(function (a) { if (CFG.PRIVACY_URL) a.setAttribute("href", CFG.PRIVACY_URL); });
@@ -117,6 +128,9 @@
       var payload = new URLSearchParams();
       new FormData(form).forEach(function (v, k) { payload.append(k, v); });
       payload.append("page", location.pathname);
+      // Ad attribution (gclid/UTMs) -> CRM only, so the offline conversion can attribute.
+      // Always send the keys (blank if absent) so the CRM field schema stays consistent.
+      ATTR_KEYS.forEach(function (k) { payload.append(k, ATTR[k] || ""); });
 
       var done = function () {
         form.classList.add("is-sent");
@@ -131,7 +145,7 @@
         .then(function () { done(); })
         .catch(function () {
           if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label || "Request my free consultation"; }
-          alert("Sorry, something went wrong. Please call " + (CFG.PHONE_DISPLAY || "our office") + ".");
+          alert("Sorry, something went wrong. Please call " + (CFG.PHONE || "our office") + ".");
         });
     });
   });

@@ -5,19 +5,16 @@
    ========================================================================= */
 window.WOLF_LP = {
   /* ----- contact ----- */
-  // CallRail tracking number (fallback display). CONFIRM this is Wolf's CallRail number before launch.
-  PHONE_DISPLAY: "(866) 487-9059",
-  PHONE_TEL: "+18664879059",
+  // Direct clinic line. NOT a call-tracking number. Used statically in every
+  // tel: link, header, sticky bar, and footer. No CallRail / DNI on these pages.
+  PHONE: "(513) 774-0400",
+  PHONE_TEL: "+15137740400",
   ADDRESS: "11877 Mason Montgomery Rd, Suite A, Cincinnati, OH 45249",
   CITY_DEFAULT: "Cincinnati",
 
-  // CallRail dynamic number insertion (DNI) swap script.
-  // Paste your CallRail swap.js URL, e.g. "//cdn.callrail.com/companies/AAAAAA/BBBBBB/12/swap.js"
-  // Leave "" to skip DNI and just show the fallback number above.
-  CALLRAIL_SWAP_SRC: "",
-
-  /* ----- copy / offer (no unsubstantiated figures) ----- */
-  EXPERIENCE: "decades of surgical experience",
+  /* ----- copy / offer ----- */
+  // Client-confirmed figure: Dr. Wolf has been treating since 1990 (over 30 years).
+  EXPERIENCE: "over 30 years of surgical experience",
   FINANCING: "Cherry financing available, subject to approval",
 
   /* ----- legal links ----- */
@@ -25,9 +22,10 @@ window.WOLF_LP = {
   NPP_URL: "https://www.wolfhair.com/hipaa-notice/", // Notice of Privacy Practices
 
   /* ----- lead routing (must be BAA-covered) ----- */
-  // The form posts here. Route through a BAA-covered endpoint (e.g. a HIPAA-compliant
-  // form handler / GHL inbound webhook under a signed BAA). Leave "" to preview only.
-  FORM_ENDPOINT: "",
+  // The form posts here. This is the same GoHighLevel Inbound Webhook the main
+  // wolfhair.com site uses; GHL is under a signed BAA. Replace if the LP campaign
+  // should route to a different BAA-covered pipeline. Set "" to preview only (no send).
+  FORM_ENDPOINT: "https://services.leadconnectorhq.com/hooks/vJ1wfQ4ORRnPRWqmhF8j/webhook-trigger/41ff8704-5857-40db-b474-865ceb4ce1ee",
 
   /* ----- analytics (placeholders - no PHI ever) ----- */
   GA4_ID: "",               // e.g. "G-XXXXXXX"

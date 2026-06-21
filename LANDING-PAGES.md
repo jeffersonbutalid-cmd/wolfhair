@@ -13,7 +13,7 @@ they carry their own CSS/JS, no GTM/Meta Pixel, no chat widget, and are
 | `womens-hair-restoration.html` | Dedicated page for women's hair loss searches. |
 | `non-surgical-hair-restoration.html` | Dedicated page for PRP / Keralase / prescription searches. |
 | `assets/lp.config.js` | **Single source of truth.** Edit phone, address, endpoint, analytics IDs, and MEDIA here only. |
-| `assets/lp.js` | Behavior: city token, CallRail DNI, neutral tracking, form post, MEDIA gating, FAQ. |
+| `assets/lp.js` | Behavior: city token, static phone fill, neutral tracking, form post, MEDIA gating, FAQ. |
 | `assets/lp.css` | Self-contained styles. No dependency on `wolf.css`. |
 
 All three pages load, in order: `assets/lp.config.js` then `assets/lp.js` (both
@@ -73,12 +73,12 @@ Everything client-specific lives in `window.WOLF_LP`. Edit this file only.
 
 | Key | What it is | Launch action |
 |-----|------------|---------------|
-| `PHONE_DISPLAY` / `PHONE_TEL` | Fallback CallRail number, currently `(866) 487-9059`. | Confirm this is Wolf's CallRail tracking number. |
+| `PHONE` / `PHONE_TEL` | Direct clinic line `(513) 774-0400`. **Not** a call-tracking number; no CallRail/DNI on these pages. | Verify. |
 | `ADDRESS` / `CITY_DEFAULT` | NAP + default city token. | Verify. |
-| `CALLRAIL_SWAP_SRC` | CallRail DNI swap.js URL. Empty = no DNI, shows fallback only. | Paste swap.js URL (see section 4). |
-| `EXPERIENCE` / `FINANCING` | Approved copy snippets (no invented figures). | Keep as-is unless legal updates. |
+| `EXPERIENCE` | Client-confirmed: `over 30 years of surgical experience` (Dr. Wolf, treating since 1990). | Keep. |
+| `FINANCING` | `Cherry financing available, subject to approval`. No APR/term/monthly figures. | Keep. |
 | `PRIVACY_URL` / `NPP_URL` | Legal links wired into the consent block and footer. | Confirm both resolve on the live domain. |
-| `FORM_ENDPOINT` | Where the lead form POSTs. **Must be BAA-covered.** Empty = preview mode (no send). | Paste the GHL inbound webhook (BAA signed). |
+| `FORM_ENDPOINT` | Where the lead form POSTs. **Must be BAA-covered.** Pre-wired to the same GoHighLevel inbound webhook the main site uses (GHL under signed BAA). Empty = preview mode (no send). | Confirm/replace with the campaign's BAA pipeline. |
 | `GA4_ID` | GA4 measurement ID. Empty = GA not loaded. | Optional. |
 | `AW_CONVERSION_ID` / `AW_CONVERSION_LABEL` | Google Ads conversion. Both required to fire. | Paste to enable client-side conversion ping. |
 | `MEDIA.beforeAfter` / `MEDIA.testimonials` | HIPAA-authorized media (see section 5). | Populate when authorized. |
@@ -94,20 +94,25 @@ service, condition, or any form-field value:
 No name, email, phone, ZIP, or interest value is ever sent to `dataLayer`,
 `gtag`, or the URL. PHI goes **only** to the BAA-covered `FORM_ENDPOINT`.
 
+### Ad attribution (gclid / UTMs)
+
+So Google Ads can attribute the offline conversion, `lp.js` captures
+`gclid`, `gbraid`, `wbraid`, `fbclid`, `msclkid`, and the five `utm_*`
+params from the landing URL, persists them for the visit, and appends them to
+the **form POST only** (the BAA-covered CRM). These are not PHI. They are
+**never** pushed to `dataLayer`/`gtag`, and `?service=` / `?city=` are
+deliberately excluded from the payload. Map these keys to GHL contact fields
+(`gclid` is the one your offline-conversion import keys on).
+
 ---
 
-## 4. CallRail snippet (DNI)
+## 4. Phone (no call tracking)
 
-The fallback number is hard-coded in `lp.config.js` (`PHONE_DISPLAY`). To enable
-Dynamic Number Insertion so CallRail swaps in a per-source number:
-
-1. In CallRail, get the swap.js URL for this tracker, e.g.
-   `//cdn.callrail.com/companies/AAAAAA/BBBBBB/12/swap.js`.
-2. Paste it into `CALLRAIL_SWAP_SRC` in `assets/lp.config.js`.
-
-`lp.js` injects the script automatically when the value is non-empty. CallRail
-then swaps every visible number and `tel:` link; the `call_click` event still
-fires on tap. Leave the value empty to skip DNI and show the fallback number.
+The number is the **direct clinic line, `(513) 774-0400`** — set once in
+`PHONE` / `PHONE_TEL` and used in the header, hero, sticky mobile bar, and
+footer. There is **no CallRail and no DNI snippet** on these pages. `lp.js`
+fills the displayed number and `tel:` href from the config and fires a neutral
+`call_click` event on tap (no PHI, no service/city param).
 
 ---
 
@@ -149,6 +154,11 @@ Baked into the markup and copy; keep it that way:
 - `<meta name="robots" content="noindex">` on all three pages.
 - ARTAS is "FDA-cleared," never "FDA-approved." No "exosome" or "stem cell"
   offer claims. No "#1 / best / award-winning." No guarantees.
+- **No "PRP" anywhere** on these Google-facing pages (Google-restricted term;
+  Google reads the full landing page). The non-surgical page leads on Keralase
+  laser + consultation; PRP is handled off-Google.
+- ABHRS certifies the **surgeon**, not the clinic. The footer carries the
+  required "ABHRS is a private certifying board, not an ABMS member board" line.
 - "Individual results vary" accompanies every results/efficacy claim.
 - Two **separate, unbundled** required consents in the form:
   `sms_consent` (A2P 10DLC) and `privacy_ack` (privacy policy / NPP).
@@ -163,9 +173,9 @@ links resolve on the production domain.
 
 ## 7. Pre-launch checklist
 
-- [ ] `FORM_ENDPOINT` set to the BAA-covered GHL inbound webhook.
-- [ ] `CALLRAIL_SWAP_SRC` set (or intentionally left blank) and `PHONE_DISPLAY`
-      confirmed as the CallRail number.
+- [ ] `FORM_ENDPOINT` confirmed as the BAA-covered GHL inbound webhook (pre-wired
+      to the main-site webhook; replace if the campaign uses a different pipeline).
+- [ ] `PHONE` confirmed as the clinic line `(513) 774-0400` (no call tracking).
 - [ ] `PRIVACY_URL` and `NPP_URL` resolve on the live domain.
 - [ ] `GA4_ID` / `AW_CONVERSION_ID` / `AW_CONVERSION_LABEL` set if client-side
       conversion is wanted (otherwise leave blank).
