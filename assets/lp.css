@@ -48,8 +48,17 @@ p{margin:0 0 1em;text-wrap:pretty}
 .btn--block{width:100%}
 .btn svg{width:1.1em;height:1.1em}
 
+/* announcement / offer bar (sticky, above the header) */
+.annc{position:sticky;top:0;z-index:70;background:#6e8ca0;color:#fff}
+.annc__in{max-width:var(--maxw);margin:0 auto;padding:10px clamp(40px,6vw,64px);text-align:center;font-size:.92rem;font-weight:500;line-height:1.3}
+.annc__in strong{font-weight:700}
+.annc__cta{color:#fff;font-weight:700;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px;white-space:nowrap;margin-left:.25em}
+.annc__cta:hover{text-decoration-thickness:2.5px}
+.annc__x{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;border:0;color:rgba(255,255,255,.85);font-size:1.4rem;line-height:1;width:30px;height:30px;border-radius:7px;cursor:pointer}
+.annc__x:hover{background:rgba(255,255,255,.18);color:#fff}
+
 /* header */
-.lp-header{position:sticky;top:0;z-index:50;background:rgba(240,237,229,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.lp-header{position:sticky;top:var(--annc-h,0px);z-index:50;background:rgba(240,237,229,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .lp-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:68px}
 .lp-brand{display:inline-flex;align-items:center}
 .lp-brand img{height:34px;width:auto}

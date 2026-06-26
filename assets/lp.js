@@ -175,6 +175,20 @@
     setP(50);
   });
 
+  /* ---------- announcement bar (height var + dismiss) ---------- */
+  var annc = $("#annc");
+  if (annc) {
+    var setAnncH = function () {
+      var h = annc.offsetParent === null ? 0 : annc.offsetHeight;
+      doc.documentElement.style.setProperty("--annc-h", h + "px");
+    };
+    setAnncH();
+    window.addEventListener("resize", setAnncH, { passive: true });
+    window.addEventListener("load", setAnncH);
+    var anncX = $(".annc__x", annc);
+    if (anncX) anncX.addEventListener("click", function () { annc.style.display = "none"; setAnncH(); });
+  }
+
   /* ---------- mobile nav toggle ---------- */
   var tgl = $(".lp-nav-toggle"), drawer = $("#lp-mobile-nav");
   if (tgl && drawer) tgl.addEventListener("click", function () { drawer.toggleAttribute("hidden"); });
