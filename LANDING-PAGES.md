@@ -9,11 +9,12 @@ they carry their own CSS/JS, no GTM/Meta Pixel, no chat widget, and are
 
 | File | Purpose |
 |------|---------|
+| `wolf-hair-restoration.html` | Brand / core page (general "Wolf Hair Restoration" ad group). Static brand H1, full service range. |
 | `hair-transplant.html` | Modular surgical page. One H1 swaps by `?service=` (see map below). |
 | `womens-hair-restoration.html` | Dedicated page for women's hair loss searches. |
-| `non-surgical-hair-restoration.html` | Dedicated page for PRP / Keralase / prescription searches. |
+| `non-surgical-hair-restoration.html` | Dedicated page for Keralase laser / non-surgical searches (no PRP named). |
 | `assets/lp.config.js` | **Single source of truth.** Edit phone, address, endpoint, analytics IDs, and MEDIA here only. |
-| `assets/lp.js` | Behavior: city token, static phone fill, neutral tracking, form post, MEDIA gating, FAQ. |
+| `assets/lp.js` | Behavior: city token, static phone fill, neutral tracking, form post, MEDIA gating, FAQ, before/after slider. |
 | `assets/lp.css` | Self-contained styles. No dependency on `wolf.css`. |
 
 All three pages load, in order: `assets/lp.config.js` then `assets/lp.js` (both
@@ -50,6 +51,7 @@ group's **Final URL** at the matching link below (prefix with
 
 | Ad group | Final URL |
 |----------|-----------|
+| Brand ("Wolf Hair Restoration") | `/wolf-hair-restoration` |
 | Hair transplant (core) | `/hair-transplant` |
 | FUE | `/hair-transplant?service=fue` |
 | ARTAS robotic | `/hair-transplant?service=artas` |
