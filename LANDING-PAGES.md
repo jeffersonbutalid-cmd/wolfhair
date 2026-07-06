@@ -86,27 +86,27 @@ Everything client-specific lives in `window.WOLF_LP`. Edit this file only.
 | `AW_CONVERSION_ID` / `AW_CONVERSION_LABEL` | Google Ads conversion. Both required to fire. | Paste to enable client-side conversion ping. |
 | `MEDIA.beforeAfter` / `MEDIA.testimonials` | HIPAA-authorized media (see section 5). | Populate when authorized. |
 
-### Lead flow (form → GHL → booking calendar → thank-you)
+### Lead flow (form → GHL → on-site /book → thank-you) — same domain
 
-On a successful submit, in this order:
+The visitor stays on `lp.wolfhair.info` the whole way. On a successful submit:
 
-1. The lead is POSTed to the BAA-covered `FORM_ENDPOINT` (GHL). **The lead is
-   captured here, before anything else** — so it reaches GHL whether or not the
-   visitor goes on to book.
-2. The conversion fires **at submit** (neutral `lead_form_success` / `generate_lead`
-   to `dataLayer`, plus the Google Ads ping if `AW_*` is set). Because it fires
-   now, **it counts as a Google conversion even if the visitor never books.**
-3. After ~1.1s (to let the tags fire), the visitor is redirected to the GHL
-   booking calendar `BOOKING_URL`
-   (`https://links.wolfhair.com/widget/bookings/wolfhairintrocall`), prefilled
-   with `first_name`, `last_name`, `email`, `phone`.
-4. **In GHL**, set that calendar's post-booking action to redirect to
-   `/thank-you`. Non-bookers simply stay on the calendar (already captured +
-   converted); `/thank-you` no longer re-fires the conversion, so there is no
-   double count.
+1. The lead is POSTed to the BAA-covered `FORM_ENDPOINT` (GHL). **Captured first,
+   before anything else** — so it reaches GHL whether or not they go on to book.
+2. The lead is stashed in same-origin `sessionStorage` (keeps PHI out of the URL)
+   and the visitor is redirected to the on-site step **`/book`** (`book.html`).
+3. **`/book`** embeds the GHL calendar
+   (`https://links.wolfhair.com/widget/bookings/wolfhairintrocall`) in an iframe,
+   prefilled from the stash, and **fires the conversion on load** (neutral
+   `lead_form_success` + `generate_lead` to `dataLayer`, plus Meta `Lead`).
+   Because `/book` is reached right after submit, **the conversion counts even if
+   the visitor never books.** A session flag prevents a double-fire on refresh.
+4. **In GHL**, set the calendar's post-booking redirect to `/thank-you`.
+   `/thank-you` does not re-fire the conversion (no double count).
 
-The prefill fields go only to the GHL (BAA-covered) calendar. `gclid` / `?service=`
-/ `?city=` are **not** added to the booking URL.
+The calendar URL lives in `book.html`. `lp.js` / `wolf.js` only redirect to the
+on-site `BOOKING_PAGE` (`/book`); no PHI, `gclid`, `?service=`, or `?city=` is
+placed in that URL. The prefill (name/email/phone) goes only into the GHL
+calendar iframe on `/book`.
 
 ### Conversion / tracking events (no PHI)
 

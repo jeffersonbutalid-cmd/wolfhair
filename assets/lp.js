@@ -116,18 +116,6 @@
     }
   }
 
-  /* ---------- booking calendar destination (prefilled from the form) ---------- */
-  function bookingDest(form) {
-    var base = CFG.BOOKING_URL || "";
-    if (!base) return "/thank-you"; // fallback when no calendar configured
-    var f = new FormData(form), qp = new URLSearchParams();
-    ["first_name", "last_name", "email", "phone"].forEach(function (k) {
-      var v = f.get(k); if (v) qp.set(k, String(v));
-    });
-    var q = qp.toString();
-    return base + (q ? (base.indexOf("?") > -1 ? "&" : "?") + q : "");
-  }
-
   /* ---------- lead form (minimal PHI, no PHI to tracking) ---------- */
   $$("form[data-lp-form]").forEach(function (form) {
     form.addEventListener("submit", function (e) {
@@ -145,22 +133,25 @@
       ATTR_KEYS.forEach(function (k) { payload.append(k, ATTR[k] || ""); });
 
       var done = function () {
-        // Fire the conversion NOW, at submit, so it counts even if the visitor
-        // never books. NEUTRAL signals only - no name/email/phone/interest.
-        track("lead_submit");
-        track("generate_lead");
-        track("lead_form_success");
-        fireAdsConversion();
+        // Lead is captured (webhook above). Stash it same-origin so the on-site
+        // /book step can prefill the calendar without putting PHI in the URL.
+        // The conversion fires on /book (same domain), so it counts even if the
+        // visitor never books. Nothing with PHI is pushed to the dataLayer here.
+        try {
+          var f = new FormData(form);
+          sessionStorage.setItem("wolf_lead", JSON.stringify({
+            first_name: f.get("first_name") || "", last_name: f.get("last_name") || "",
+            email: f.get("email") || "", phone: f.get("phone") || ""
+          }));
+          sessionStorage.removeItem("wolf_conv_fired");
+        } catch (e) {}
         var ok = $(".lp-form__ok", form);
-        if (ok && (CFG.BOOKING_URL)) {
+        if (ok) {
           ok.innerHTML = '<strong style="display:block;font-size:1.15rem;margin-bottom:.3em">Perfect.</strong>' +
             'Taking you to the calendar to choose a time for your free consultation...';
         }
         form.classList.add("is-sent");
-        // Then send them to the GHL booking calendar (prefilled). The lead is
-        // already in GHL (webhook above) and already counted before this runs.
-        var dest = bookingDest(form);
-        if (dest) setTimeout(function () { window.location.assign(dest); }, 1100);
+        window.location.assign(CFG.BOOKING_PAGE || "/book");
       };
 
       if (!endpoint) { done(); return; } // preview mode

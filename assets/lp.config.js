@@ -27,10 +27,11 @@ window.WOLF_LP = {
   // should route to a different BAA-covered pipeline. Set "" to preview only (no send).
   FORM_ENDPOINT: "https://services.leadconnectorhq.com/hooks/vJ1wfQ4ORRnPRWqmhF8j/webhook-trigger/41ff8704-5857-40db-b474-865ceb4ce1ee",
 
-  // GHL booking calendar. After the lead is captured (webhook) and the conversion
-  // fires, the visitor is sent here to pick a consultation time. Booking is optional:
-  // the lead is already in GHL and already counted as a conversion before this loads.
-  BOOKING_URL: "https://links.wolfhair.com/widget/bookings/wolfhairintrocall",
+  // On-site booking step (same domain). After the lead is captured, the visitor is
+  // sent here; /book.html embeds the GHL calendar in an iframe and fires the
+  // conversion on load, so it counts even if they never book. The actual GHL
+  // calendar URL lives in book.html.
+  BOOKING_PAGE: "/book",
 
   /* ----- analytics (placeholders - no PHI ever) ----- */
   GA4_ID: "",               // e.g. "G-XXXXXXX"

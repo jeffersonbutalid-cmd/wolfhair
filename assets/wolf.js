@@ -59,17 +59,12 @@
   // thank-you page to redirect to after a successful submission
   var THANKYOU = (typeof window.WOLF_THANKYOU_URL === "string") ? window.WOLF_THANKYOU_URL : "/thank-you";
 
-  // GHL booking calendar. On submit we capture the lead + fire the conversion,
-  // THEN send the visitor here to pick a time. Booking is optional: the lead is
-  // already in GHL and already counted as a conversion before this loads.
-  var BOOKING = (typeof window.WOLF_BOOKING_URL === "string") ? window.WOLF_BOOKING_URL : "https://links.wolfhair.com/widget/bookings/wolfhairintrocall";
-  function bookingDest(data) {
-    if (!BOOKING) return THANKYOU || "/thank-you";
-    var qp = new URLSearchParams();
-    ["first_name", "last_name", "email", "phone"].forEach(function (k) { if (data && data[k]) qp.set(k, data[k]); });
-    var q = qp.toString();
-    return BOOKING + (q ? (BOOKING.indexOf("?") > -1 ? "&" : "?") + q : "");
-  }
+  // On-site booking step (same domain). On submit we capture the lead, stash it,
+  // and send the visitor to /book, which embeds the GHL calendar and fires the
+  // conversion on load. Booking is optional: the lead is already in GHL and the
+  // conversion counts on /book whether or not they book. Override with
+  // window.WOLF_BOOKING_PAGE if the path differs.
+  var BOOKING_PAGE = (typeof window.WOLF_BOOKING_PAGE === "string") ? window.WOLF_BOOKING_PAGE : "/book";
 
   // GHL / LeadConnector embed (path B): redirect to the booking calendar on submit.
   // Best effort from the parent. For guaranteed behavior also set the redirect URL
@@ -83,9 +78,8 @@
         var d = e.data;
         var key = typeof d === "string" ? d : (d && (d.type || d.event || d.action || ""));
         if (key && /form[\s_-]?sub|formsubmit|submitted|submission.?success/i.test(String(key))) {
-          if (window.dataLayer) { window.dataLayer.push({ event: "lead_form_success" }); window.dataLayer.push({ event: "generate_lead" }); }
-          try { if (typeof window.fbq === "function") window.fbq("track", "Lead"); } catch (er) {}
-          setTimeout(function () { window.location.assign(bookingDest({})); }, 1100);
+          try { sessionStorage.removeItem("wolf_conv_fired"); } catch (er) {}
+          window.location.assign(BOOKING_PAGE);
         }
       } catch (err) {}
     });
@@ -106,7 +100,10 @@
       TRACK_KEYS.forEach(function (k) { if (!(k in data)) data[k] = ""; });
 
       var finish = function () {
-        // Stash the submitted lead (same-origin sessionStorage keeps PII out of the URL).
+        // Stash the submitted lead same-origin (keeps PII out of the URL) so the
+        // on-site /book step can prefill the calendar. The lead is already in GHL
+        // (webhook). The conversion fires on /book, so it counts even if the
+        // visitor never books. No PHI is pushed to the dataLayer here.
         try {
           sessionStorage.setItem("wolf_lead", JSON.stringify({
             email: data.email || "",
@@ -114,24 +111,10 @@
             first_name: data.first_name || "",
             last_name: data.last_name || ""
           }));
+          sessionStorage.removeItem("wolf_conv_fired");
         } catch (e) {}
-        // Fire the conversion NOW, at submit, so it counts even if the visitor
-        // never books. (Moved off the thank-you page, which the non-bookers skip.)
-        if (window.dataLayer) {
-          var ev = { event: "lead_form_success" };
-          if (data.email) ev.email = data.email;
-          if (data.phone) ev.phone = data.phone;
-          if (data.first_name) ev.first_name = data.first_name;
-          if (data.last_name) ev.last_name = data.last_name;
-          window.dataLayer.push(ev);
-          window.dataLayer.push({ event: "generate_lead" });
-        }
-        try { if (typeof window.fbq === "function") window.fbq("track", "Lead"); } catch (e) {}
-        // Then send them to the GHL booking calendar (prefilled). The lead is
-        // already in GHL (webhook) and already counted before this runs.
-        var dest = bookingDest(data);
         if (btn) btn.textContent = "Opening the calendar...";
-        setTimeout(function () { window.location.assign(dest); }, 1100);
+        window.location.assign(BOOKING_PAGE);
       };
 
       if (!endpoint) {
