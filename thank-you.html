@@ -21,28 +21,15 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('init', '1976343833755263');
 fbq('track', 'PageView');
-fbq('track', 'Lead');
 </script>
 <!-- End Meta Pixel Code -->
-<!-- Push the submitted lead (email/phone) into the dataLayer for GTM Enhanced Conversions.
-     Values come from sessionStorage (set on form submit), with a ?email=&phone= URL fallback. -->
+<!-- Post-booking confirmation page. The lead conversion (lead_form_success) already
+     fired at form submit, so this page does NOT re-fire it (avoids double counting).
+     It only emits a neutral pageview event and clears the stashed lead. -->
 <script>
 window.dataLayer = window.dataLayer || [];
 (function () {
-  var lead = {};
-  try { lead = JSON.parse(sessionStorage.getItem('wolf_lead') || '{}'); } catch (e) {}
-  try {
-    var p = new URLSearchParams(location.search);
-    ['email','phone','first_name','last_name'].forEach(function (k) {
-      if (!lead[k] && p.get(k)) lead[k] = p.get(k);
-    });
-  } catch (e) {}
-  var ev = { event: 'lead_form_success' };
-  if (lead.email) ev.email = lead.email;
-  if (lead.phone) ev.phone = lead.phone;
-  if (lead.first_name) ev.first_name = lead.first_name;
-  if (lead.last_name) ev.last_name = lead.last_name;
-  window.dataLayer.push(ev);
+  window.dataLayer.push({ event: 'booking_thank_you' });
   try { sessionStorage.removeItem('wolf_lead'); } catch (e) {}
 })();
 </script>

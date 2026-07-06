@@ -86,12 +86,34 @@ Everything client-specific lives in `window.WOLF_LP`. Edit this file only.
 | `AW_CONVERSION_ID` / `AW_CONVERSION_LABEL` | Google Ads conversion. Both required to fire. | Paste to enable client-side conversion ping. |
 | `MEDIA.beforeAfter` / `MEDIA.testimonials` | HIPAA-authorized media (see section 5). | Populate when authorized. |
 
+### Lead flow (form → GHL → booking calendar → thank-you)
+
+On a successful submit, in this order:
+
+1. The lead is POSTed to the BAA-covered `FORM_ENDPOINT` (GHL). **The lead is
+   captured here, before anything else** — so it reaches GHL whether or not the
+   visitor goes on to book.
+2. The conversion fires **at submit** (neutral `lead_form_success` / `generate_lead`
+   to `dataLayer`, plus the Google Ads ping if `AW_*` is set). Because it fires
+   now, **it counts as a Google conversion even if the visitor never books.**
+3. After ~1.1s (to let the tags fire), the visitor is redirected to the GHL
+   booking calendar `BOOKING_URL`
+   (`https://links.wolfhair.com/widget/bookings/wolfhairintrocall`), prefilled
+   with `first_name`, `last_name`, `email`, `phone`.
+4. **In GHL**, set that calendar's post-booking action to redirect to
+   `/thank-you`. Non-bookers simply stay on the calendar (already captured +
+   converted); `/thank-you` no longer re-fires the conversion, so there is no
+   double count.
+
+The prefill fields go only to the GHL (BAA-covered) calendar. `gclid` / `?service=`
+/ `?city=` are **not** added to the booking URL.
+
 ### Conversion / tracking events (no PHI)
 
 The pages push only **neutral, generic** event names to `dataLayer` — never the
 service, condition, or any form-field value:
 
-- `lead_submit` — fired once on a successful form submit.
+- `lead_submit`, `generate_lead`, `lead_form_success` — fired at a successful submit.
 - `call_click` — fired when a `tel:` link is tapped.
 
 No name, email, phone, ZIP, or interest value is ever sent to `dataLayer`,
